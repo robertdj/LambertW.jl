@@ -61,3 +61,33 @@ function lambertwApprox(x::Real, k::Int)
 	return W
 end
 
+
+# ------------------------------------------------------------
+# Lambert's W function for arrays
+# ------------------------------------------------------------
+
+function lambertw(x::Array{Float64}, k::Int=0, prec=10e-10)
+	W = zeros( size(x) )
+
+	N = length(x)
+
+	for n = 1:N
+		# ----------------------------------------------------
+		# If x is out of bounds, the answer is NaN
+		if x[n] < -exp(-1)
+			W[n] = NaN
+			continue
+		end
+		
+		if k == -1 && x[n] >= 0
+			W[n] = NaN
+			continue
+		end
+		# ----------------------------------------------------
+
+		W[n] = lambertw( x[n], k, prec )
+	end
+
+	return W
+end
+
