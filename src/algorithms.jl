@@ -1,4 +1,4 @@
-function lambertw(x::Real, k::Int=0, prec=10e-10)
+function lambertw(x::Real, k::Int=0, prec=eps())
 	# Check branch
 	if k != 0 && k != -1
 		error("The branch k must be either 0 or -1")
@@ -6,11 +6,11 @@ function lambertw(x::Real, k::Int=0, prec=10e-10)
 
 	# Check argument
 	if x < -exp(-1)
-		error("Lambert's W function is only defined for input greater than -exp(-1)")
+		return NaN
 	end
 
 	if k == -1 && x >= 0
-		error("The argument of branch -1 of Lambert's W function must be negative")
+		return NaN
 	end
 
 	# Compute function
@@ -21,7 +21,7 @@ end
 
 
 # NAC: No Argument Check
-function lambertwNAC(x::Real, k::Int=0, prec=10e-10)
+function lambertwNAC(x::Real, k::Int=0, prec=eps())
 	# First approximation
 	W = lambertwApprox(x, k)
 
@@ -71,7 +71,16 @@ end
 # Lambert's W function for arrays
 # ------------------------------------------------------------
 
-function lambertw(x::Array{Float64}, k::Int=0, prec=10e-10)
+function lambertw{T<:Real}(x::Array{T}, k::Int=0, prec=eps())
+	# Check branch
+	if k != 0 && k != -1
+		error("The branch k must be either 0 or -1")
+	end
+
+	# Constants
+	lower_bound = -exp(-1)
+	lower_branch = k == -1
+
 	W = zeros( size(x) )
 
 	N = length(x)
@@ -79,12 +88,12 @@ function lambertw(x::Array{Float64}, k::Int=0, prec=10e-10)
 	for n = 1:N
 		# ----------------------------------------------------
 		# If x is out of bounds, the answer is NaN
-		if x[n] < -exp(-1)
+		if x[n] < lower_bound
 			W[n] = NaN
 			continue
 		end
 		
-		if k == -1 && x[n] >= 0
+		if lower_branch && x[n] >= 0
 			W[n] = NaN
 			continue
 		end
