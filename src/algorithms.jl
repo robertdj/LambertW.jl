@@ -25,18 +25,17 @@ function lambertwNAC(x::Real, k::Int=0, prec=eps())
 	# First approximation
 	W = lambertwApprox(x, k)
 
-	# Compute residual
-	r = abs( x - W*exp(W) )
+	# Compute residual using logarithms to avoid numerical overflow
+	r = abs( W - log(abs(x)) + log(abs(W)) )
 
 	# Apply Halley's method to increase precision
-	# TODO: What should be the maximum number of iterations?
 	n = 0
-	while r > prec && n < 10
+	while r > prec && n < 5
 		n += 1
 
 		Wnew = W - (W*exp(W) - x) / (exp(W)*(W+1) - (W+2)*(W*exp(W)-x)/(2*W+2))
 
-		r = abs( x - W*exp(W) )
+		r = abs( W - log(abs(x)) + log(abs(W)) )
 		W = Wnew
 	end
 
@@ -57,6 +56,7 @@ function lambertwApprox(x::Real, k::Int)
             eta = 2 + 2*exp(1)*x;
             N2 = 3*sqrt(2) + 6 - (((2237+1457*sqrt(2))*exp(1) - 4108*sqrt(2) - 5764)*sqrt(eta))/((215+199*sqrt(2))*exp(1) - 430*sqrt(2)-796);
             N1 = (1-1/sqrt(2))*(N2+sqrt(2));
+
             W = -1 + sqrt(eta)/(1 + N1*sqrt(eta)/(N2 + sqrt(eta)));
 		else
             W = log( 6*x/(5*log( 12/5*(x/log(1+12*x/5)) )) )

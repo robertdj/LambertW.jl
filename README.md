@@ -1,6 +1,6 @@
 # LambertW #
 
-[![Build Status](https://travis-ci.org/git@dahl-jacobsen.dk/LambertW.jl.svg?branch=master)](https://travis-ci.org/git@dahl-jacobsen.dk/LambertW.jl)
+[![Build Status](https://travis-ci.org/robertdj/LambertW.jl.svg?branch=master)](https://travis-ci.org/robertdj/LambertW.jl)
 
 This package implements an approximation of the two real branches of [Lambert's W function](https://en.wikipedia.org/wiki/Lambert_W_function), W = W(x), defined as a solution of the equation W*exp(W) = x
 
