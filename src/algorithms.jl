@@ -1,4 +1,4 @@
-function lambertw(x::Real, k::Int=0, prec=10e-10)
+function lambertw(x::Real, k::Int=0, prec=eps())
 	# Check branch
 	if k != 0 && k != -1
 		error("The branch k must be either 0 or -1")
@@ -6,11 +6,11 @@ function lambertw(x::Real, k::Int=0, prec=10e-10)
 
 	# Check argument
 	if x < -exp(-1)
-		error("Lambert's W function is only defined for input greater than -exp(-1)")
+		return NaN
 	end
 
 	if k == -1 && x >= 0
-		error("The argument of branch -1 of Lambert's W function must be negative")
+		return NaN
 	end
 
 	# Compute function
@@ -21,22 +21,26 @@ end
 
 
 # NAC: No Argument Check
-function lambertwNAC(x::Real, k::Int=0, prec=10e-10)
+function lambertwNAC(x::Real, k::Int=0, prec=eps())
 	# First approximation
 	W = lambertwApprox(x, k)
 
-	# Compute residual
-	r = abs( x - W*exp(W) )
+	# Compute residual using logarithms to avoid numerical overflow
+	# When x == 0, r = NaN, but here the approximation is exact and 
+	# the while loop below is unnecessary
+	r = abs( W - log(abs(x)) + log(abs(W)) )
 
-	# Apply Halley's method to increase precision
-	# TODO: What should be the maximum number of iterations?
+	# Apply Fritsch’s method to increase precision
 	n = 0
-	while r > prec && n < 10
+	while r > prec && n < 5
 		n += 1
 
-		Wnew = W - (W*exp(W) - x) / (exp(W)*(W+1) - (W+2)*(W*exp(W)-x)/(2*W+2))
+		z = log(x/W) - W
+		q = 2*(1 + W)*(1 + W + 2/3*z)
+		epsilon = z*(q - z) / ((1 + W)*(q - 2*z))
+		Wnew = W * (1 + epsilon)
 
-		r = abs( x - W*exp(W) )
+		r = abs( W - log(abs(x)) + log(abs(W)) )
 		W = Wnew
 	end
 
@@ -57,6 +61,7 @@ function lambertwApprox(x::Real, k::Int)
             eta = 2 + 2*exp(1)*x;
             N2 = 3*sqrt(2) + 6 - (((2237+1457*sqrt(2))*exp(1) - 4108*sqrt(2) - 5764)*sqrt(eta))/((215+199*sqrt(2))*exp(1) - 430*sqrt(2)-796);
             N1 = (1-1/sqrt(2))*(N2+sqrt(2));
+
             W = -1 + sqrt(eta)/(1 + N1*sqrt(eta)/(N2 + sqrt(eta)));
 		else
             W = log( 6*x/(5*log( 12/5*(x/log(1+12*x/5)) )) )
@@ -71,7 +76,16 @@ end
 # Lambert's W function for arrays
 # ------------------------------------------------------------
 
-function lambertw(x::Array{Float64}, k::Int=0, prec=10e-10)
+function lambertw{T<:Real}(x::Array{T}, k::Int=0, prec=eps())
+	# Check branch
+	if k != 0 && k != -1
+		error("The branch k must be either 0 or -1")
+	end
+
+	# Constants
+	lower_bound = -exp(-1)
+	lower_branch = k == -1
+
 	W = zeros( size(x) )
 
 	N = length(x)
@@ -79,12 +93,12 @@ function lambertw(x::Array{Float64}, k::Int=0, prec=10e-10)
 	for n = 1:N
 		# ----------------------------------------------------
 		# If x is out of bounds, the answer is NaN
-		if x[n] < -exp(-1)
+		if x[n] < lower_bound
 			W[n] = NaN
 			continue
 		end
 		
-		if k == -1 && x[n] >= 0
+		if lower_branch && x[n] >= 0
 			W[n] = NaN
 			continue
 		end
