@@ -26,14 +26,19 @@ function lambertwNAC(x::Real, k::Int=0, prec=eps())
 	W = lambertwApprox(x, k)
 
 	# Compute residual using logarithms to avoid numerical overflow
+	# When x == 0, r = NaN, but here the approximation is exact and 
+	# the while loop below is unnecessary
 	r = abs( W - log(abs(x)) + log(abs(W)) )
 
-	# Apply Halley's method to increase precision
+	# Apply Fritsch’s method to increase precision
 	n = 0
 	while r > prec && n < 5
 		n += 1
 
-		Wnew = W - (W*exp(W) - x) / (exp(W)*(W+1) - (W+2)*(W*exp(W)-x)/(2*W+2))
+		z = log(x/W) - W
+		q = 2*(1 + W)*(1 + W + 2/3*z)
+		epsilon = z*(q - z) / ((1 + W)*(q - 2*z))
+		Wnew = W * (1 + epsilon)
 
 		r = abs( W - log(abs(x)) + log(abs(W)) )
 		W = Wnew
