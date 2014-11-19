@@ -1,3 +1,4 @@
+# Lambert's W function for numbers
 function lambertw(x::Real, k::Int=0, prec=eps())
 	# Check branch
 	if k != 0 && k != -1
@@ -17,6 +18,11 @@ function lambertw(x::Real, k::Int=0, prec=eps())
 	W = lambertwNAC(x, k, prec)
 
 	return W
+end
+
+# Lambert's W function for arrays
+function lambertw{T<:Real}(x::Array{T}, k::Int=0, prec=eps())
+	W = map( y -> lambertw(y, k, prec), x )
 end
 
 
@@ -50,9 +56,9 @@ end
 
 function lambertwApprox(x::Real, k::Int)
 	if k == -1
-		M1 = 0.3361
-		M2 = -0.0042
-		M3 = -0.0201
+		const M1 = 0.3361
+		const M2 = -0.0042
+		const M3 = -0.0201
 
 		sigma = -1 - log(-x)
         W = -1 - sigma - 2/M1*(1 - 1/(1 + (M1*sqrt(sigma/2)) / (1 + M2*sigma*exp(M3*sqrt(sigma)))))
@@ -66,45 +72,6 @@ function lambertwApprox(x::Real, k::Int)
 		else
             W = log( 6*x/(5*log( 12/5*(x/log(1+12*x/5)) )) )
 		end
-	end
-
-	return W
-end
-
-
-# ------------------------------------------------------------
-# Lambert's W function for arrays
-# ------------------------------------------------------------
-
-function lambertw{T<:Real}(x::Array{T}, k::Int=0, prec=eps())
-	# Check branch
-	if k != 0 && k != -1
-		error("The branch k must be either 0 or -1")
-	end
-
-	# Constants
-	lower_bound = -exp(-1)
-	lower_branch = k == -1
-
-	W = zeros( size(x) )
-
-	N = length(x)
-
-	for n = 1:N
-		# ----------------------------------------------------
-		# If x is out of bounds, the answer is NaN
-		if x[n] < lower_bound
-			W[n] = NaN
-			continue
-		end
-		
-		if lower_branch && x[n] >= 0
-			W[n] = NaN
-			continue
-		end
-		# ----------------------------------------------------
-
-		W[n] = lambertwNAC( x[n], k, prec )
 	end
 
 	return W
