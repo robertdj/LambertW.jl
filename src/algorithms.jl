@@ -14,20 +14,6 @@ function lambertw(x::Real, k::Int=0, prec=eps())
 		return NaN
 	end
 
-	# Compute function
-	W = lambertwNAC(x, k, prec)
-
-	return W
-end
-
-# Lambert's W function for arrays
-function lambertw{T<:Real}(x::Array{T}, k::Int=0, prec=eps())
-	W = map( y -> lambertw(y, k, prec), x )
-end
-
-
-# NAC: No Argument Check
-function lambertwNAC(x::Real, k::Int=0, prec=eps())
 	# First approximation
 	W = lambertwApprox(x, k)
 
@@ -51,6 +37,11 @@ function lambertwNAC(x::Real, k::Int=0, prec=eps())
 	end
 
 	return W
+end
+
+# Lambert's W function for arrays
+function lambertw{T<:Real}(x::Array{T}, k::Int=0, prec=eps())
+	W = map( y -> lambertw(y, k, prec), x )
 end
 
 

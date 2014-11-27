@@ -1,10 +1,10 @@
 module LambertW
 
+include("algorithms.jl")
+
 # package code goes here
 export
     lambertw
-
-include("algorithms.jl")
 
 end # module
 
