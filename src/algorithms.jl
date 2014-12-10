@@ -40,7 +40,7 @@ end
 
 # Lambert's W function for arrays
 function lambertw{T<:Real}(x::Array{T}, k::Int=0, prec=eps())
-	W = map( y -> lambertw(y, k, prec), x )
+	W = map( x -> lambertw(x, k, prec), x )
 end
 
 
