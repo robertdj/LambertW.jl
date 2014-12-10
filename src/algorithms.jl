@@ -30,10 +30,9 @@ function lambertw(x::Real, k::Int=0, prec=eps())
 		z = log(x/W) - W
 		q = 2*(1 + W)*(1 + W + 2/3*z)
 		epsilon = z*(q - z) / ((1 + W)*(q - 2*z))
-		Wnew = W * (1 + epsilon)
+		W *= 1 + epsilon
 
 		r = abs( W - log(abs(x)) + log(abs(W)) )
-		W = Wnew
 	end
 
 	return W
