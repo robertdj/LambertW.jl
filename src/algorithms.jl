@@ -6,7 +6,8 @@ function lambertw(x::Real, k::Int=0, prec=eps())
 	end
 
 	# Check argument
-	if x < -exp(-1)
+	const minx = -1/e
+	if x < minx
 		return NaN
 	end
 
@@ -23,16 +24,15 @@ function lambertw(x::Real, k::Int=0, prec=eps())
 	r = abs( W - log(abs(x)) + log(abs(W)) )
 
 	# Apply Fritsch’s method to increase precision
-	n = 0
-	while r > prec && n < 5
-		n += 1
-
+	n = 1
+	while r > prec && n <= 5
 		z = log(x/W) - W
 		q = 2*(1 + W)*(1 + W + 2/3*z)
 		epsilon = z*(q - z) / ((1 + W)*(q - 2*z))
 		W *= 1 + epsilon
 
 		r = abs( W - log(abs(x)) + log(abs(W)) )
+		n += 1
 	end
 
 	return W
@@ -47,11 +47,15 @@ end
 # Initial approximation for branch 0
 function lambertwApprox(x::Real, ::Type{Val{0}})
 	if x <= 1
-		eta = 2 + 2*exp(1)*x;
-		N2 = 3*sqrt(2) + 6 - (((2237+1457*sqrt(2))*exp(1) - 4108*sqrt(2) - 5764)*sqrt(eta))/((215+199*sqrt(2))*exp(1) - 430*sqrt(2)-796);
-		N1 = (1-1/sqrt(2))*(N2+sqrt(2));
+		const sqrt2 = sqrt(2)
 
-		W = -1 + sqrt(eta)/(1 + N1*sqrt(eta)/(N2 + sqrt(eta)));
+		eta = 2 + 2*e*x;
+		sqeta = sqrt(eta)
+
+		N2 = 3*sqrt2 + 6 - (((2237+1457*sqrt2)*e - 4108*sqrt2 - 5764)*sqeta)/((215+199*sqrt2)*e - 430*sqrt2-796);
+		N1 = (1-1/sqrt2)*(N2+sqrt2);
+
+		W = -1 + sqeta/(1 + N1*sqeta/(N2 + sqeta));
 	else
 		W = log( 6*x/(5*log( 12/5*(x/log(1+12*x/5)) )) )
 	end
