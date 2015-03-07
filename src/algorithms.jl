@@ -16,7 +16,7 @@ function lambertw(x::Real, k::Int=0, prec=eps())
 	end
 
 	# First approximation
-	W = lambertwApprox(x, Val{k})
+	W = lambertw(x, Val{k})
 
 	# Compute residual using logarithms to avoid numerical overflow
 	# When x == 0, r = NaN, but here the approximation is exact and 
@@ -44,8 +44,11 @@ function lambertw{T<:Real}(x::Array{T}, k::Int=0, prec=eps())
 end
 
 
-# Initial approximation for branch 0
-function lambertwApprox(x::Real, ::Type{Val{0}})
+# ------------------------------------------------------------
+# Initial approximations
+
+# For branch 0
+function lambertw(x::Real, ::Type{Val{0}})
 	if x <= 1
 		const sqrt2 = sqrt(2)
 
@@ -63,8 +66,8 @@ function lambertwApprox(x::Real, ::Type{Val{0}})
 	return W
 end
 
-# Initial approximation for branch -1
-function lambertwApprox(x::Real, ::Type{Val{-1}})
+# For branch -1
+function lambertw(x::Real, ::Type{Val{-1}})
 	const M1 = 0.3361
 	const M2 = -0.0042
 	const M3 = -0.0201
