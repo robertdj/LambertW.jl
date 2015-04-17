@@ -15,8 +15,8 @@ lambertw(x[, k, prec])
 
 The `k`'th branch of Lambert's W function evaluated at `x`.
 
-`k` must be `-1` or `0` (default).
-`prec` defaults to `eps()`.
+- `k` must be `0` (default) or `-1`.
+- `prec` defaults to `eps()`.
 """->
 function lambertw(x::Real, k::Int=0, prec=eps())
 	# Check branch
