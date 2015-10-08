@@ -6,6 +6,8 @@ This Julia package implements an approximation of the two real branches of [Lamb
 
 The approximation is based on an iterative method.
 
+I made this package to try out Julia, but unfortunately I did not register it before an official [LambertW package](https://github.com/jlapeyre/LambertW.jl) occured.
+
 
 ## Usage ##
 
