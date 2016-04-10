@@ -1,13 +1,11 @@
 module LambertW
 
-# package code goes here
 export
     lambertw
 
 end # module
 
 
-# Lambert's W function for numbers
 @doc """
 ```
 lambertw(x[, k, prec])
@@ -19,10 +17,8 @@ The `k`'th branch of Lambert's W function evaluated at `x`.
 - `prec` defaults to `eps()`.
 """->
 function lambertw(x::Real, k::Int=0, prec=eps())
-	# Check branch
-	if k != 0 && k != -1
-		error("The branch k must be either 0 or -1")
-	end
+	@assert k == 0 || k == -1 "The branch k must be either 0 or -1"
+	@assert prec >= eps()
 
 	# Check argument
 	const minx = -1/e
@@ -57,9 +53,13 @@ function lambertw(x::Real, k::Int=0, prec=eps())
 	return W
 end
 
-# Lambert's W function for arrays
+
 function lambertw{T<:Real}(x::Array{T}, k::Int=0, prec=eps())
-	W = map( x -> lambertw(x, k, prec), x )
+	W = Array(Float64, size(x))
+	for idx in eachindex(x)
+		W[idx] = lambertw( x[idx], k, prec )
+	end
+	return W
 end
 
 
@@ -70,9 +70,7 @@ end
 function lambertw(x::Real, ::Type{Val{0}})
 	if x <= 1
 		const sqrt2 = sqrt(2)
-
-		eta = 2 + 2*e*x;
-		sqeta = sqrt(eta)
+		sqeta = sqrt( 2 + 2*e*x )
 
 		N2 = 3*sqrt2 + 6 - (((2237+1457*sqrt2)*e - 4108*sqrt2 - 5764)*sqeta)/((215+199*sqrt2)*e - 430*sqrt2-796);
 		N1 = (1-1/sqrt2)*(N2+sqrt2);
